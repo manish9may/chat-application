@@ -11,6 +11,8 @@ import {
 import logo from "../assets/logo.png";
 import Sidebar from "../components/Sidebar";
 
+import io from "socket.io-client";
+
 const Home = () => {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -39,6 +41,26 @@ const Home = () => {
     fetchUserDetails();
   }, []);
   const basePath = location.pathname === "/";
+
+  useEffect(() => {
+    const socketConnection = io(process.env.REACT_APP_BACKEND_URL, {
+      withCredentials: true,
+      transports: ["websocket"],
+      auth: {
+        token: localStorage.getItem("token"),
+      },
+    });
+    socketConnection.on("connect", () => {
+      console.log("Connected to server");
+    });
+
+    socketConnection.on("connect_error", (err) => {
+      console.log("connect_error");
+    });
+    return () => {
+      socketConnection.disconnect();
+    };
+  }, []);
   return (
     <div className="grid lg:grid-cols-[300px,1fr] h-screen max-h-screen">
       <section className={`bg-white ${!basePath && "hidden"} lg:block`}>
