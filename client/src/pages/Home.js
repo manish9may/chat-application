@@ -47,15 +47,20 @@ const Home = () => {
       withCredentials: true,
       transports: ["websocket"],
       auth: {
-        token: localStorage.getItem("token"),
+        token: localStorage.getItem("token") || "",
       },
     });
     socketConnection.on("connect", () => {
+      dispatch(setSocketConnection(socketConnection));
       console.log("Connected to server");
     });
-
     socketConnection.on("connect_error", (err) => {
       console.log("connect_error");
+    });
+
+    socketConnection.on("onlineUser", (user) => {
+      dispatch(setOnlineUser(user));
+      console.log("onlineUser", user);
     });
     return () => {
       socketConnection.disconnect();
